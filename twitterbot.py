@@ -26,6 +26,7 @@ if __name__ == '__main__':
 
 	task1 = open('task1.txt', 'w')
 	task2 = open('task2.txt', 'w')
+	ids = ""
 	for line in ids:
 		account_info = api.lookup_users(user_ids=[line])
 		for user in account_info:
@@ -60,14 +61,25 @@ if __name__ == '__main__':
 	task2.close()
 	task1.close()
 
+	task3 = open('task3.txt', 'w')
+
 	print "\nWeather keyword:\n"
+	task3.write("\nWeather keyword:\n")
 
-	for tweet in tweepy.Cursor(api.search, q="weather", result_type="recent").items(50):
+	weatherTweets = tweepy.Cursor(api.search, q="weather", result_type="recent", count="50").items()
+
+	for tweet in weatherTweets:
 		#pdb.set_trace()
+		task3.write(tweet.text.encode('utf-8').strip())
 		print tweet.text.encode('utf-8').strip()
-		break
 
-	for tweet in tweepy.Cursor(api.search, geocode="-22.9122,-43.2302,1km", result_type="recent").items(50):
+	print "\nCoordinates tweets:\n"
+	task3.write("\nCoordinates tweets:\n")
+
+	coordinateTweets = tweepy.Cursor(api.search, geocode="-22.9122,-43.2302,1km", result_type="recent", count="50").items()
+
+	for tweet in coordinateTweets:
 		#pdb.set_trace()
+		task3.write(tweet.text.encode('utf-8').strip())
 		print tweet.text.encode('utf-8').strip()#[-86.33,41.63,-86.20,41.74]
-		break
+	task3.close()
