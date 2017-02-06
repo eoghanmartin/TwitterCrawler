@@ -66,20 +66,20 @@ if __name__ == '__main__':
 	print "\nWeather keyword:\n"
 	task3.write("\nWeather keyword:\n")
 
-	weatherTweets = tweepy.Cursor(api.search, q="weather", result_type="recent", count="50").items()
-
-	for tweet in weatherTweets:
-		#pdb.set_trace()
-		task3.write(tweet.text.encode('utf-8').strip())
+	weatherTweets = tweepy.Cursor(api.search, q="weather", count=50).pages()
+	page = next(weatherTweets)
+	for tweet in page:
+		task3.write(tweet.text.encode('utf-8').strip() + "\n\n")
 		print tweet.text.encode('utf-8').strip()
 
 	print "\nCoordinates tweets:\n"
 	task3.write("\nCoordinates tweets:\n")
 
-	coordinateTweets = tweepy.Cursor(api.search, geocode="-22.9122,-43.2302,1km", result_type="recent", count="50").items()
-
-	for tweet in coordinateTweets:
+	coordinateTweets = tweepy.Cursor(api.search, geocode= "41.63,-86.33,20km", count=50).pages()
+	#pdb.set_trace()
+	page = next(coordinateTweets)
+	for tweet in page:
 		#pdb.set_trace()
-		task3.write(tweet.text.encode('utf-8').strip())
+		task3.write(tweet.text.encode('utf-8').strip() + "\n\n")
 		print tweet.text.encode('utf-8').strip()#[-86.33,41.63,-86.20,41.74]
 	task3.close()
