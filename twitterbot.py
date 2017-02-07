@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
 	task1 = open('task1.txt', 'w')
 	task2 = open('task2.txt', 'w')
-	ids = ""
+
 	for line in ids:
 		account_info = api.lookup_users(user_ids=[line])
 		for user in account_info:
