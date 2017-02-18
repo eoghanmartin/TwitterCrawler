@@ -147,7 +147,7 @@ if __name__ == '__main__':
 			if seed in centroids:
 				seed_count += 1
 		#if they are the same, we're done.
-		if seed_count >= 25:
+		if seed_count >= num_clusters:
 			print "Completed in " + str(loop_count) + " loops."
 			break
 		#set seed_list to list of new centroids and compute clusters and centroids again.
