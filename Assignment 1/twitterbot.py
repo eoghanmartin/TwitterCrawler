@@ -76,7 +76,6 @@ if __name__ == '__main__':
 	task3.write("\nCoordinates tweets:\n")
 
 	coordinateTweets = tweepy.Cursor(api.search, geocode= "41.63,-86.33,20km", count=50).pages()
-	#pdb.set_trace()
 	page = next(coordinateTweets)
 	for tweet in page:
 		#pdb.set_trace()
