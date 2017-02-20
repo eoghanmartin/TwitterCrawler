@@ -3,9 +3,8 @@
 from __future__ import division
 import tweepy, time, sys, json, pdb
 
-#325946633986641920
-
 def removeDuplicates (words_list):
+	list_copy = []
 	word_counts = {}
 	#initialize dict
 	for word in words_list:
@@ -13,14 +12,13 @@ def removeDuplicates (words_list):
 	#create dict values
 	for word in words_list:
 		word_counts[word] += 1
+	#pdb.set_trace()
 	#delete duplicate words
 	for word in word_counts:
 		if word_counts[word] > 1:
-			i = 0
 			for remove_word in words_list:
 				if remove_word == word:
-					words_list.pop(i)
-				i += 1
+					words_list.remove(word)
 			words_list.append(word)
 
 	return words_list
@@ -32,7 +30,15 @@ def jacardDistance (tweetA, tweetB):
 	wordsA = removeDuplicates(wordsA)
 	wordsB = removeDuplicates(wordsB)
 
-	union = len(wordsA) + len(wordsB)
+	allWords = []
+	for word in wordsA:
+		allWords.append(word)
+	for word in wordsB:
+		allWords.append(word)
+
+	allWords = removeDuplicates(allWords)
+
+	union = len(allWords)
 	intersection = 0
 
 	for wordA in wordsA:
@@ -81,7 +87,6 @@ if __name__ == '__main__':
 		clusters = []
 		for seed in seed_list:
 			for tweet in tweets_json:
-				#pdb.set_trace()
 				if str(tweet['id']) == seed:
 					clusters.append(Cluster(seed, tweet))
 
@@ -93,11 +98,7 @@ if __name__ == '__main__':
 		for tweet in tweets_json:
 			#set benchmark value for distance to the closest seed for this tweet.
 			min_distance = jacardDistance(tweet, clusters[0].tweet)
-			if min_distance != 0:
-				closest_cluster = 0
-			else:
-				min_distance = jacardDistance(tweet, clusters[1].tweet)
-				closest_cluster = 1
+			closest_cluster = 0
 			#iterate through each seed and calculate the distance from this tweet.
 			i = 0
 			for cluster in clusters:
@@ -108,7 +109,6 @@ if __name__ == '__main__':
 				i += 1
 			#The seed that's closest gets the tweet added to it's cluster.
 			clusters[closest_cluster].tweets.append(tweet)
-
 
 		centroids = []
 		#compute centroids
@@ -128,9 +128,8 @@ if __name__ == '__main__':
 				for tweet in tweets_in_cluster:
 					total_distance = 0
 					for tweet_compare in tweets_in_cluster:
-						if str(tweet['id']) != str(tweet_compare['id']):
-							distance = jacardDistance(tweet, cluster.tweet)
-							total_distance += distance
+						distance = jacardDistance(tweet, cluster.tweet)
+						total_distance += distance
 					if total_distance < min_dist:
 						min_dist = total_distance
 						min_dist_tweet = tweet
@@ -147,11 +146,11 @@ if __name__ == '__main__':
 			if seed in centroids:
 				seed_count += 1
 		#if they are the same, we're done.
-		if seed_count >= num_clusters:
+		if seed_count == num_clusters:
 			print "Completed in " + str(loop_count) + " loops."
 			break
-		#set seed_list to list of new centroids and compute clusters and centroids again.
 		else:
+			#set seed_list to list of new centroids and compute clusters and centroids again.
 			seed_list = centroids
 			loop_count += 1
 			print str(loop_count)
