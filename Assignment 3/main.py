@@ -16,6 +16,15 @@ def readSCMatrixFile(filename):
 	matrix_file.close()
 	return matrix
 
+def writeMatrixToFile(matrix):
+	matrix_CSVfile=open('matrix.csv','w')
+	for source_id in matrix:
+		matrix_CSVfile.write(str(source_id)+',')
+		for claim in matrix[source_id]:
+			matrix_CSVfile.write(str(claim) + ',')
+		matrix_CSVfile.write("\r\n")
+	matrix_CSVfile.close()
+
 class EstModel():
 	def __init__(self, matrix):
 		self.matrix = matrix
@@ -32,34 +41,38 @@ class EstModel():
 		max_val = 0
 		for source_id in self.matrix:
 			if self.matrix[source_id] > max_val:
-				max_val = self.matrix[source_id]
-		return max_val
+				max_val = max(self.matrix[source_id])
+		return max_val - 1
 
-	def calcSi(self, i):
+	def si(self, source):
 		# num reports from si / total num of measured variables
-		return len(self.matrix[i]) / float(self.count_measured_variables)
+		return len(self.matrix[source]) / float(self.count_measured_variables)
 
 	def initAi(self):
 		# Algorithm line 1; ai = si
 		a = {}
-		for i in self.matrix.keys():
-			a[i] = self.calcSi(i)
+		for source in self.matrix:
+			a[source] = self.si(source)
 		return a
 
 	def initBi(self):
 		# Algorithm line 1; bi = si * 0.5
 		b = {}
-		for i in self.matrix.keys():
-			b[i] = self.calcSi(i) * 0.5
+		for source in self.matrix:
+			b[source] = self.si(source) * 0.5
 		return b
 
-	def calcNextAi(self, s):
+	def aiTPlusOne(self, s):
 		# Equation 17
-		numerator = sum([self.Z[j] for j in self.Z if j in self.matrix[s]])
+		list_of_j_in_Z = []
+		for claim in self.Z:
+			if claim in self.matrix[s]:
+				list_of_j_in_Z.append(self.Z[claim])
+		numerator = sum(list_of_j_in_Z)
 		denominator = sum(self.Z.values())
 		return numerator / float(denominator)
 
-	def calcNextBi(self, s):
+	def biTPlusOne(self, s):
 		# Equation 17
 		Ki = len(self.matrix[s])
 		N = self.count_measured_variables
@@ -67,7 +80,7 @@ class EstModel():
 		denominator = sum(self.Z.values())
 		return (Ki - numerator) / float(N - denominator)
 
-	def calcNextDi(self, s):
+	def diTPlusOne(self, s):
 		# Equation 17
 		numerator = sum(self.Z.values())
 		return numerator / float(self.count_measured_variables)
@@ -98,7 +111,7 @@ class EstModel():
 				PI *= (1-self.b[i])
 		return PI
 
-	def calcZ(self, j):
+	def Ztj(self, j):
 		# Equation 11
 		numerator = self.calcA(j) * self.d
 		denominator = self.calcA(j) * self.d + self.calcB(j) * (1 - self.d)
@@ -106,26 +119,23 @@ class EstModel():
 
 	def calcSourceReliability(self, s):
 		# Equation 5
-		return self.a[s] * self.d / float(self.calcSi(s))
+		return self.a[s] * self.d / float(self.si(s))
 
 	def expectationMaximization(self):
 		t = 0
 		while t < 20:
-			# Expectation step: Compute the expected log likelihood function where the expectation is taken with respect
-			# to the computed conditional distribution of the latent variables given the current settings and observed data. 
+			# Expectation step
 
-			# Algorithm lines 3 - 5
+			# Z computed based off of equation 11
 			for j in self.Z:
-				self.Z[j] = self.calcZ(j)
+				self.Z[j] = self.Ztj(j)
 
-			# Maximization step: Find the parameters that maximize the Q function in the E-step to be used as the estimate
-			# of theta for the next iteration.
+			# Maximization step
 
-			# Algorithm lines 6 - 10
-			for i in self.matrix:
-				self.a[i] = self.calcNextAi(i)
-				self.b[i] = self.calcNextBi(i)
-				self.d = self.calcNextDi(i)
+			for source in self.matrix:
+				self.a[source] = self.aiTPlusOne(source)
+				self.b[source] = self.biTPlusOne(source)
+				self.d = self.diTPlusOne(source)
 			t += 1
 
 		# Algorithm lines 15 - 21
@@ -139,24 +149,45 @@ class EstModel():
 		for i in self.matrix:
 			self.E[i] = self.calcSourceReliability(i)
 
+	def verifyTruth(self):
+		# Only use to verify testing files
+		truth_dict = {}
+		f = open('GroundTruth_File.txt', 'r')
+		for line in f:
+			measured_variable_id, correctness_indicator = line.split(',')
+			truth_dict[int(measured_variable_id)] = int(correctness_indicator)
+		f.close()
+		perfect = 1
+		for j in truth_dict:
+			if truth_dict[j] != self.H[j]:
+				print 'Incorrect:', j, truth_dict[j], self.H[j]
+				perfect = 0
+		if perfect == 0:
+			print "\nAlgorithm has a problem."
+		else:
+			print "\nWe good fam."
+			# Writes each line in the format "measured variable ID, 1 or 0",
+			# where 1 indicates the variable is true and 0 indicates it is false
+			f = open('results.txt', 'w')
+			for j in self.H:
+				f.write(str(j) + ',' + str(self.H[j]) + '\n')
+			f.close()
+
 if __name__ == '__main__':
 
 	matrix_file = 'SCMatrix_Test1.txt'
 	matrix = readSCMatrixFile(matrix_file)
-	matrix_CSVfile=open('matrix.csv','w')
 	#Writing matrix to CSV file
-	#for source_id in matrix:
-	#	matrix_CSVfile.write(str(source_id)+',')
-	#	for idx, val in enumerate(matrix[source_id]):
-	#		matrix_CSVfile.write(str(idx) + ':' + str(val) + ',')
-	#	matrix_CSVfile.write("\r\n")
-	#matrix_CSVfile.close()
+	#writeMatrixToFile(matrix)
+
+	#pdb.set_trace()
 
 	td = EstModel(matrix)
 	td.expectationMaximization()
-	#td.verifyTruth()
+	td.verifyTruth()
 
 	###ALGORITHM
+	#si = all claims by source divided by total claims
 	#Initialize theta (ai = si, bi = 0.5 × si, d = Random number in (0, 1) )
 	#while theta(t) does not converge do
 	#	for j = 1 : N do
