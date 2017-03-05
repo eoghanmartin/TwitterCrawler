@@ -51,25 +51,19 @@ class KMeans:
 	def jacardDistance (self, tweetA, tweetB):
 		wordsA = tweetA['text'].split()
 		wordsB = tweetB['text'].split()
+		allWords = list(wordsA)
+		allWords.extend(wordsB)
 
-		wordsA = removeDuplicates(wordsA)
-		wordsB = removeDuplicates(wordsB)
-
-		allWords = []
-		for word in wordsA:
-			allWords.append(word)
-		for word in wordsB:
-			allWords.append(word)
-
-		allWords = removeDuplicates(allWords)
+		allWords = removeDuplicates(allWords) #list(set(allWords)) doesn't seem to work here...
+		wordsA = list(set(wordsA))
+		wordsB = list(set(wordsB))
 
 		union = len(allWords)
 		intersection = 0
 
 		for wordA in wordsA:
-			for wordB in wordsB:
-				if wordA == wordB:
-					intersection += 1
+			if wordA in wordsB:
+				intersection += 1
 
 		jacard = float((union - intersection) / union)
 
