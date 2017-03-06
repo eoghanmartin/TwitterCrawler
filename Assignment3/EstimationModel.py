@@ -147,12 +147,17 @@ class EstModel():
 		else:
 			print "\nResults match the ground truths for MLE."
 
-	def writeResults(self, results_filename):
+	def writeResultsTask1(self, results_filename):
+		results_file = open(results_filename, 'w')
+		for truth in self.h:
+			results_file.write(str(truth) + ',' + str(self.h[truth]) + '\n')
+		results_file.close()
+
+	def writeResultsTask2(self, results_filename):
 		results_file = open(results_filename, 'w')
 		#pdb.set_trace()
-		for truth in sorted(self.h, key=self.h.get, reverse=True):
-			#print truth, self.h[truth]
-			results_file.write(str(truth) + ',' + str(self.h[truth]) + '\n')
+		for truth in sorted(self.Z, key=self.Z.get, reverse=True):
+			results_file.write(str(truth) + ',' + str(self.Z[truth]) + '\n')
 		results_file.close()
 
 

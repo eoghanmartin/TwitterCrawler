@@ -41,7 +41,7 @@ if __name__ == '__main__':
 	estimation_model_using_SCMatrixFile.MLE()
 	# Used for test data with ground truths
 	#estimation_model_using_SCMatrixFile.checkResults('GroundTruth_File.txt')
-	estimation_model_using_SCMatrixFile.writeResults('ResultsTask1.txt')
+	estimation_model_using_SCMatrixFile.writeResultsTask1('ResultsTask1.txt')
 
 	### TASK 2 ###
 
@@ -54,4 +54,4 @@ if __name__ == '__main__':
 	#writeMatrixToFile(clusters_matrix)
 	estimation_model_using_twitter_data = EstModel(clusters_matrix)
 	estimation_model_using_twitter_data.MLE()
-	estimation_model_using_twitter_data.writeResults('ResultsTask2.txt')
+	estimation_model_using_twitter_data.writeResultsTask2('ResultsTask2.txt')
