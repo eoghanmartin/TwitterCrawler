@@ -127,14 +127,14 @@ class EstModel():
 			self.E[source] = self.ai[source] * self.d / float(self.si(source))
 #		end for
 
-	def checkResults(self):
+	def checkResults(self, ground_truths_filename):
 		truths = {}
-		f = open('GroundTruth_File.txt', 'r')
-		for line in f:
+		ground_truths_file = open(ground_truths_filename, 'r')
+		for line in ground_truths_file:
 			measured_var_id = line.split(',')[0]
 			truth = line.split(',')[1]
 			truths[int(measured_var_id)] = int(truth)
-		f.close()
+		ground_truths_file.close()
 		perfect = 1
 		for truth in truths:
 			if truths[truth] != self.h[truth]:
@@ -143,11 +143,15 @@ class EstModel():
 		if perfect == 0:
 			print "\nAlgorithm has a problem."
 		else:
-			print "\nAll good."
-			results_file = open('results.txt', 'w')
-			for truth in self.h:
-				results_file.write(str(truth) + ',' + str(self.h[truth]) + '\n')
-			results_file.close()
+			print "\nResults match the ground truths for MLE."
+
+	def writeResults(self, results_filename):
+		results_file = open(results_filename, 'w')
+		for truth in self.h:
+			results_file.write(str(truth) + ',' + str(self.h[truth]) + '\n')
+		results_file.close()
+
+
 
 	###	ALGORITHM ###
 

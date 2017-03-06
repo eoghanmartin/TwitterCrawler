@@ -2,7 +2,7 @@
 # coding=utf-8
 import sys, json, pdb, os
 from EstimationModel import EstModel
-from EstimationModel import EstModel
+from KMeansClustering import KMeans
 
 def readSCMatrixFile(filename):
 	matrix_file=open(filename,'r')
@@ -28,12 +28,25 @@ def writeMatrixToFile(matrix):
 
 if __name__ == '__main__':
 
+	### TASK 1 ###
+
 	matrix_file = 'SCMatrix_Test1.txt'
 	matrix = readSCMatrixFile(matrix_file)
 	#writeMatrixToFile(matrix)
 
-	#pdb.set_trace()
+	estimation_model_using_SCMatrixFile = EstModel(matrix)
+	estimation_model_using_SCMatrixFile.MLE()
+	estimation_model_using_SCMatrixFile.checkResults('GroundTruth_File.txt')
+	estimation_model_using_SCMatrixFile.writeResults('ResultsTask1.txt')
 
-	estimation_model = EstModel(matrix)
-	estimation_model.MLE()
-	estimation_model.checkResults()
+	### TASK 2 ###
+
+	k_means = KMeans('InitialSeeds.txt', 'Tweets.json')
+	k_means.generateClusters()
+	k_means.writeClustersToFile('clusters.json')
+	k_means.checkResults('CorrectClusteringResults.txt')
+
+	clusters_matrix = k_means.generateMatrixFromClusters()
+	estimation_model_using_twitter_data = EstModel(clusters_matrix)
+	estimation_model_using_twitter_data.MLE()
+	estimation_model_using_twitter_data.writeResults('ResultsTask2.txt')

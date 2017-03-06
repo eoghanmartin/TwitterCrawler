@@ -86,7 +86,7 @@ class KMeans:
 		if perfect == 0:
 			print "\nAlgorithm has a problem."
 		else:
-			print "\nAll good."
+			print "\nResults match the results in " + results_filename + " for K-Means clustering."
 
 	def initClusters(self):
 		clusters = []
@@ -159,7 +159,7 @@ class KMeans:
 				for cluster in self.clusters:
 					cluster.ID = i
 					i += 1
-				print "Completed."
+				print "\nK-Means clustering complete."
 				break
 			else:
 				#set seed_list to list of new centroids and compute clusters and centroids again.
@@ -176,28 +176,28 @@ class KMeans:
 			clusters_file.write('\n')
 		clusters_file.close()
 
-	def generateMatrixFromClusters():
+	def generateMatrixFromClusters(self):
 		matrix = {}
 		for cluster in self.clusters:
 			for tweet in cluster.tweets:
-				twitter_user = getTwitterUserFromTweetId(str(tweet['id']))
+				twitter_user = self.getTwitterUserFromTweetId(str(tweet['id']))
 				if twitter_user == 0:
 					break
 				if twitter_user not in matrix:
-					matrix[str(twitter_user)] = getClaimsMadeByTwitterUser(twitter_user)
+					matrix[str(twitter_user)] = self.getClaimsMadeByTwitterUser(twitter_user)
 		return matrix
 
-	def getTwitterUserFromTweetId(tweet_id):
+	def getTwitterUserFromTweetId(self, tweet_id):
 		for tweet in self.tweets:
 			if str(tweet['id']) == tweet_id:
 				return str(tweet['from_user_id'])
 		return 0
 
-	def getClaimsMadeByTwitterUser(twitter_user):
+	def getClaimsMadeByTwitterUser(self, twitter_user):
 		claims = []
 		for cluster in self.clusters:
 			for tweet in cluster.tweets:
-				if twitter_user == tweet['from_user_id']:
+				if twitter_user == str(tweet['from_user_id']):
 					claims.append(cluster.ID)
 		return claims
 
