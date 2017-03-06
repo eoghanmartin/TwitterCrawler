@@ -30,13 +30,13 @@ if __name__ == '__main__':
 
 	### TASK 1 ###
 
-	matrix_file = 'SCMatrix_Test1.txt'
+	matrix_file = 'SCMatrix_Submit.txt'
 	matrix = readSCMatrixFile(matrix_file)
 	#writeMatrixToFile(matrix)
 
 	estimation_model_using_SCMatrixFile = EstModel(matrix)
 	estimation_model_using_SCMatrixFile.MLE()
-	estimation_model_using_SCMatrixFile.checkResults('GroundTruth_File.txt')
+	#estimation_model_using_SCMatrixFile.checkResults('GroundTruth_File.txt')
 	estimation_model_using_SCMatrixFile.writeResults('ResultsTask1.txt')
 
 	### TASK 2 ###
@@ -47,6 +47,7 @@ if __name__ == '__main__':
 	k_means.checkResults('CorrectClusteringResults.txt')
 
 	clusters_matrix = k_means.generateMatrixFromClusters()
+	writeMatrixToFile(clusters_matrix)
 	estimation_model_using_twitter_data = EstModel(clusters_matrix)
 	estimation_model_using_twitter_data.MLE()
 	estimation_model_using_twitter_data.writeResults('ResultsTask2.txt')
