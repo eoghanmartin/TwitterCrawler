@@ -8,6 +8,8 @@ The program can be ran using:
 ```
 python main.py
 ```
+Assignment 3 uses the `KMeansClustering` module from the Assignment 2 folder. As a result, the project structure should be upheld to run the code.
+Running the code will complete both Task 1 and Task 2 in one go.
 
 ## Output
 
